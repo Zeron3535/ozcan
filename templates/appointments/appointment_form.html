@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Randevu Al - {{ professional.user.get_full_name }} - {{ site_settings.site_name|default:"BanaRandevu" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section" style="min-height: 40vh; background: var(--gradient-hero);">
+    <div class="container">
+        <div class="row align-items-center h-100 py-5">
+            <div class="col-12">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb mb-0" style="background: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); padding: 0.75rem 1rem;">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'main:home' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'main:category_detail' professional.category.slug %}" class="text-white text-decoration-none">{{ professional.category.name }}</a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'professionals:professional_detail' professional.category.slug professional.id %}" class="text-white text-decoration-none">{{ professional.user.get_full_name }}</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">Randevu Al</li>
+                    </ol>
+                </nav>
+                
+                <!-- Page Header -->
+                <div class="text-center">
+                    <h1 class="display-4 fw-bold text-white mb-3">Randevu Oluştur</h1>
+                    <p class="lead text-white-50 mb-0">{{ professional.user.get_full_name }} ile {{ service.name }} randevusu</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Appointment Form Card -->
+                <div class="card border-0 shadow-lg" style="border-radius: var(--border-radius-xl);">
+                    <div class="card-body p-5">
+                        <!-- Service Info -->
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-user-md text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Profesyonel</h6>
+                                        <p class="text-muted mb-0">{{ professional.user.get_full_name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-concierge-bell text-success"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Hizmet</h6>
+                                        <p class="text-muted mb-0">{{ service.name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-clock text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Süre</h6>
+                                        <p class="text-muted mb-0">{{ service.duration }} dakika</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="feature-icon me-3">
+                                        <i class="fas fa-money-bill-wave text-info"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0">Ücret</h6>
+                                        <p class="text-muted mb-0">{{ service.price }} TL</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form -->
+                        <form method="post" id="appointmentForm">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <!-- Personal Information -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold mb-4 text-primary">
+                                        <i class="fas fa-user me-2"></i> Kişisel Bilgiler
+                                    </h4>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.client_name.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-user me-2 text-primary"></i>Ad Soyad *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control form-control-lg border-0 bg-light"
+                                           id="{{ form.client_name.id_for_label }}"
+                                           name="{{ form.client_name.name }}"
+                                           value="{{ form.client_name.value|default:'' }}"
+                                           placeholder="Adınız ve soyadınız"
+                                           required
+                                           style="border-radius: var(--border-radius); padding: 1rem;">
+                                    {% if form.client_name.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.client_name.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.client_phone.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-phone me-2 text-success"></i>Telefon *
+                                    </label>
+                                    <input type="tel" 
+                                           class="form-control form-control-lg border-0 bg-light"
+                                           id="{{ form.client_phone.id_for_label }}"
+                                           name="{{ form.client_phone.name }}"
+                                           value="{{ form.client_phone.value|default:'' }}"
+                                           placeholder="0555 123 45 67"
+                                           required
+                                           style="border-radius: var(--border-radius); padding: 1rem;">
+                                    {% if form.client_phone.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.client_phone.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-12 mb-4">
+                                    <label for="{{ form.client_email.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-envelope me-2 text-info"></i>E-posta
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control form-control-lg border-0 bg-light"
+                                           id="{{ form.client_email.id_for_label }}"
+                                           name="{{ form.client_email.name }}"
+                                           value="{{ form.client_email.value|default:'' }}"
+                                           placeholder="ornek@email.com"
+                                           style="border-radius: var(--border-radius); padding: 1rem;">
+                                    {% if form.client_email.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.client_email.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Appointment Details -->
+                                <div class="col-12 mt-4">
+                                    <h4 class="fw-bold mb-4 text-primary">
+                                        <i class="fas fa-calendar-alt me-2"></i> Randevu Detayları
+                                    </h4>
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.appointment_date.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-calendar me-2 text-warning"></i>Tarih *
+                                    </label>
+                                    <input type="date" 
+                                           class="form-control form-control-lg border-0 bg-light"
+                                           id="{{ form.appointment_date.id_for_label }}"
+                                           name="{{ form.appointment_date.name }}"
+                                           value="{{ form.appointment_date.value|default:'' }}"
+                                           required
+                                           style="border-radius: var(--border-radius); padding: 1rem;">
+                                    {% if form.appointment_date.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.appointment_date.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-4">
+                                    <label for="{{ form.appointment_time.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-clock me-2 text-danger"></i>Saat *
+                                    </label>
+                                    <input type="time" 
+                                           class="form-control form-control-lg border-0 bg-light"
+                                           id="{{ form.appointment_time.id_for_label }}"
+                                           name="{{ form.appointment_time.name }}"
+                                           value="{{ form.appointment_time.value|default:'' }}"
+                                           required
+                                           style="border-radius: var(--border-radius); padding: 1rem;">
+                                    {% if form.appointment_time.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.appointment_time.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-12 mb-4">
+                                    <label for="{{ form.notes.id_for_label }}" class="form-label fw-medium">
+                                        <i class="fas fa-comment me-2 text-secondary"></i>Notlar (İsteğe bağlı)
+                                    </label>
+                                    <textarea class="form-control border-0 bg-light"
+                                              id="{{ form.notes.id_for_label }}"
+                                              name="{{ form.notes.name }}"
+                                              rows="4"
+                                              placeholder="Randevu ile ilgili özel notlarınız..."
+                                              style="border-radius: var(--border-radius); padding: 1rem;">{{ form.notes.value|default:'' }}</textarea>
+                                    {% if form.notes.errors %}
+                                        <div class="text-danger small mt-2">
+                                            {% for error in form.notes.errors %}
+                                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Terms & Submit -->
+                                <div class="col-12">
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                        <label class="form-check-label text-muted" for="agreeTerms">
+                                            <a href="#" class="text-primary text-decoration-none">Kullanım koşullarını</a> ve 
+                                            <a href="#" class="text-primary text-decoration-none">gizlilik politikasını</a> okudum, kabul ediyorum.
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Non-field errors -->
+                                    {% if form.non_field_errors %}
+                                        <div class="alert alert-danger border-0 mb-4" style="border-radius: var(--border-radius);">
+                                            {% for error in form.non_field_errors %}
+                                                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary btn-lg fw-medium" style="padding: 1rem; border-radius: var(--border-radius);">
+                                            <i class="fas fa-calendar-check me-2"></i> Randevu Oluştur
+                                        </button>
+                                        <a href="{% url 'professionals:professional_detail' professional.category.slug professional.id %}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-arrow-left me-2"></i> Geri Dön
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Summary Card -->
+                <div class="card border-0 shadow sticky-top" style="border-radius: var(--border-radius-lg); top: 100px;">
+                    <div class="card-header bg-primary text-white border-0" style="border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;">
+                        <h5 class="fw-bold mb-0">
+                            <i class="fas fa-receipt me-2"></i> Randevu Özeti
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark">{{ professional.user.get_full_name }}</h6>
+                            <p class="text-muted small mb-0">{{ professional.category.name }}</p>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Hizmet:</span>
+                                <span class="fw-medium">{{ service.name }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Süre:</span>
+                                <span class="fw-medium">{{ service.duration }} dk</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Tip:</span>
+                                <span class="badge bg-{{ service.service_type == 'online' and 'primary' or 'success' }}">
+                                    {{ service.get_service_type_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">Toplam:</span>
+                            <span class="fw-bold text-success h5 mb-0">{{ service.price }} TL</span>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <div class="alert alert-info border-0" style="border-radius: var(--border-radius);">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <small>Randevu onaylandıktan sonra ödeme bilgileri gönderilecektir.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+    // Set minimum date to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('{{ form.appointment_date.id_for_label }}');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+        }
+    });
+</script>
+{% endblock %}
+{% endblock %} 

@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+
+{% block title %}Randevularım - {{ site_settings.site_name|default:"BanaRandevu" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section" style="min-height: 40vh; background: var(--gradient-hero);">
+    <div class="container">
+        <div class="row align-items-center h-100 py-5">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold text-white mb-3">Randevularım</h1>
+                <p class="lead text-white-50 mb-4">Tüm randevularınızı buradan takip edebilirsiniz</p>
+                
+                <!-- Filter Tabs -->
+                <div class="d-flex justify-content-center">
+                    <div class="btn-group" role="group" aria-label="Randevu Filtreleri">
+                        <a href="{% url 'appointments:appointment_list' %}" class="btn btn-light {% if not request.GET.status %}active{% endif %}">
+                            <i class="fas fa-calendar-alt me-2"></i> Tümü
+                        </a>
+                        <a href="?status=pending" class="btn btn-light {% if request.GET.status == 'pending' %}active{% endif %}">
+                            <i class="fas fa-clock me-2"></i> Bekleyen
+                        </a>
+                        <a href="?status=confirmed" class="btn btn-light {% if request.GET.status == 'confirmed' %}active{% endif %}">
+                            <i class="fas fa-check-circle me-2"></i> Onaylanmış
+                        </a>
+                        <a href="{% url 'appointments:past_appointment_list' %}" class="btn btn-light">
+                            <i class="fas fa-history me-2"></i> Geçmiş
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<section class="py-5">
+    <div class="container">
+        {% if appointments %}
+            <!-- Statistics Cards -->
+            <div class="row mb-5">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stats-card text-center hover-lift">
+                        <div class="stat-icon text-primary mb-3">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                        <h3 class="stat-number text-primary">{{ total_appointments }}</h3>
+                        <p class="stat-label">Toplam Randevu</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stats-card text-center hover-lift">
+                        <div class="stat-icon text-warning mb-3">
+                            <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                        <h3 class="stat-number text-warning">{{ pending_appointments }}</h3>
+                        <p class="stat-label">Bekleyen</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stats-card text-center hover-lift">
+                        <div class="stat-icon text-success mb-3">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                        <h3 class="stat-number text-success">{{ confirmed_appointments }}</h3>
+                        <p class="stat-label">Onaylanmış</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="stats-card text-center hover-lift">
+                        <div class="stat-icon text-info mb-3">
+                            <i class="fas fa-calendar-day fa-2x"></i>
+                        </div>
+                        <h3 class="stat-number text-info">{{ today_appointments }}</h3>
+                        <p class="stat-label">Bugün</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Appointments List -->
+            <div class="row">
+                {% for appointment in appointments %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="card border-0 shadow hover-lift h-100" style="border-radius: var(--border-radius-lg);">
+                            <!-- Card Header -->
+                            <div class="card-header border-0 bg-light" style="border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <div class="feature-icon me-3">
+                                            <i class="fas fa-calendar-alt text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0">{{ appointment.service.name }}</h6>
+                                            <small class="text-muted">{{ appointment.service.professional.user.get_full_name }}</small>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-{% if appointment.status == 'pending' %}warning{% elif appointment.status == 'confirmed' %}success{% elif appointment.status == 'completed' %}info{% else %}danger{% endif %}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body p-4">
+                                <!-- Date & Time -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-calendar text-primary me-2"></i>
+                                            <div>
+                                                <small class="text-muted">Tarih</small>
+                                                <div class="fw-medium">{{ appointment.appointment_date|date:"d M Y" }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-clock text-warning me-2"></i>
+                                            <div>
+                                                <small class="text-muted">Saat</small>
+                                                <div class="fw-medium">{{ appointment.appointment_time|time:"H:i" }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Service Details -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-money-bill-wave text-success me-2"></i>
+                                            <div>
+                                                <small class="text-muted">Ücret</small>
+                                                <div class="fw-medium">{{ appointment.service.price }} TL</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-hourglass-half text-info me-2"></i>
+                                            <div>
+                                                <small class="text-muted">Süre</small>
+                                                <div class="fw-medium">{{ appointment.service.duration }} dk</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Service Type -->
+                                <div class="mb-3">
+                                    <span class="badge bg-{% if appointment.service.service_type == 'online' %}primary{% else %}success{% endif %} me-2">
+                                        <i class="fas fa-{% if appointment.service.service_type == 'online' %}video{% else %}handshake{% endif %} me-1"></i>
+                                        {{ appointment.service.get_service_type_display }}
+                                    </span>
+                                    {% if appointment.created_at %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-plus-circle me-1"></i>
+                                            {{ appointment.created_at|date:"d M Y H:i" }} tarihinde oluşturuldu
+                                        </small>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Notes -->
+                                {% if appointment.notes %}
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fas fa-comment me-1"></i> Not:
+                                        </small>
+                                        <p class="text-muted small mb-0 fst-italic">{{ appointment.notes|truncatewords:15 }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Card Footer -->
+                            <div class="card-footer border-0 bg-light" style="border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-user me-1"></i> 
+                                            {{ appointment.client_name }}
+                                        </small>
+                                    </div>
+                                    <div>
+                                        <a href="{% url 'appointments:appointment_detail' appointment.id %}" class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i> Detay
+                                        </a>
+                                        {% if appointment.status == 'confirmed' and appointment.service.service_type == 'online' %}
+                                            <button class="btn btn-success btn-sm ms-2" disabled>
+                                                <i class="fas fa-video me-1"></i> Görüşmeye Katıl
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <div class="row mt-5">
+                    <div class="col-12">
+                        <nav aria-label="Sayfa navigasyonu">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                            <i class="fas fa-angle-double-left"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                            <i class="fas fa-angle-left"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                            <i class="fas fa-angle-right"></i>
+                                        </a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                            <i class="fas fa-angle-double-right"></i>
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-icon mb-4">
+                            <i class="fas fa-calendar-times fa-5x text-muted"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">Henüz Randevunuz Yok</h3>
+                        <p class="text-muted mb-4">İlk randevunuzu oluşturmak için kategorileri inceleyin ve uygun profesyoneli bulun.</p>
+                        <a href="{% url 'main:category_list' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search me-2"></i> Profesyonel Bul
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %} 

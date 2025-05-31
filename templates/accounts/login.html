@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Giriş Yap - {{ site_settings.site_name|default:"BanaRandevu" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Background Section -->
+<div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; min-height: 100vh;">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+    
+    <!-- Background Pattern -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;charset=utf-8,<svg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;><g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;><g fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.05&quot;><path d=&quot;M30 0c16.568 0 30 13.432 30 30s-13.432 30-30 30S0 46.568 0 30 13.432 0 30 0z&quot;/></g></svg>'); opacity: 0.1;"></div>
+    
+    <div class="container d-flex align-items-center justify-content-center min-vh-100 py-5" style="position: relative; z-index: 2;">
+        <div class="row justify-content-center w-100">
+            <div class="col-lg-10">
+                <div class="row align-items-center">
+                    <!-- Left Side - Login Form -->
+                    <div class="col-lg-6">
+                        <!-- Login Card -->
+                        <div class="card border-0 shadow-xl" style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95); border-radius: var(--border-radius-xl);">
+                            <div class="card-body p-5">
+                                <!-- Header -->
+                                <div class="text-center mb-5">
+                                    <div class="mb-4">
+                                        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle" style="width: 80px; height: 80px;">
+                                            <i class="fas fa-user-shield fa-2x text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <h2 class="fw-bold text-dark mb-3">Profesyonel Girişi</h2>
+                                    <p class="text-muted mb-0">Hesabınıza giriş yaparak randevularınızı yönetin</p>
+                                </div>
+                                
+                                <!-- Login Form -->
+                                <form method="post">
+                                    {% csrf_token %}
+                                    
+                                    <!-- Username Field -->
+                                    <div class="mb-4">
+                                        <label for="{{ form.username.id_for_label }}" class="form-label fw-medium text-dark">
+                                            <i class="fas fa-user me-2 text-primary"></i>Kullanıcı Adı
+                                        </label>
+                                        <input type="text" 
+                                               class="form-control form-control-lg border-0 bg-light"
+                                               id="{{ form.username.id_for_label }}"
+                                               name="{{ form.username.name }}"
+                                               placeholder="Kullanıcı adınızı girin"
+                                               value="{{ form.username.value|default:'' }}"
+                                               required
+                                               style="border-radius: var(--border-radius); padding: 1rem;">
+                                        {% if form.username.errors %}
+                                            <div class="text-danger small mt-2">
+                                                {% for error in form.username.errors %}
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Password Field -->
+                                    <div class="mb-4">
+                                        <label for="{{ form.password.id_for_label }}" class="form-label fw-medium text-dark">
+                                            <i class="fas fa-lock me-2 text-primary"></i>Şifre
+                                        </label>
+                                        <input type="password" 
+                                               class="form-control form-control-lg border-0 bg-light"
+                                               id="{{ form.password.id_for_label }}"
+                                               name="{{ form.password.name }}"
+                                               placeholder="Şifrenizi girin"
+                                               required
+                                               style="border-radius: var(--border-radius); padding: 1rem;">
+                                        {% if form.password.errors %}
+                                            <div class="text-danger small mt-2">
+                                                {% for error in form.password.errors %}
+                                                    <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Remember Me -->
+                                    <div class="mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
+                                            <label class="form-check-label text-muted" for="rememberMe">
+                                                Beni hatırla
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <div class="d-grid gap-2 mb-4">
+                                        <button type="submit" class="btn btn-primary btn-lg fw-medium" style="padding: 1rem; border-radius: var(--border-radius);">
+                                            <i class="fas fa-sign-in-alt me-2"></i> Giriş Yap
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Non-field errors -->
+                                    {% if form.non_field_errors %}
+                                        <div class="alert alert-danger border-0" style="border-radius: var(--border-radius);">
+                                            {% for error in form.non_field_errors %}
+                                                <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </form>
+                                
+                                <!-- Footer Links -->
+                                <div class="text-center">
+                                    <small class="text-muted">
+                                        <a href="#" class="text-decoration-none text-primary">Şifremi Unuttum</a>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Demo Credentials -->
+                        <div class="mt-3">
+                            <div class="card border-0" style="background: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); backdrop-filter: blur(10px);">
+                                <div class="card-body p-3 text-center">
+                                    <small class="text-white fw-medium d-block mb-2">
+                                        <i class="fas fa-key me-1"></i> Demo Giriş Bilgileri
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Admin Login Link -->
+                        <div class="mt-3">
+                            <div class="card border-0" style="background: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); backdrop-filter: blur(10px);">
+                                <div class="card-body p-3 text-center">
+                                    <small class="text-white fw-medium d-block mb-2">
+                                        <i class="fas fa-user-shield me-1"></i> Yönetici Girişi
+                                    </small>
+                                    <a href="/yonetim/" class="btn btn-outline-light btn-sm">Admin Paneline Git</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Info Cards -->
+                    <div class="col-lg-6">
+                        <div class="hero-image-container" style="height: 500px; position: relative;">
+                            <!-- Customer Info Card -->
+                            <div class="hero-card floating" style="animation-delay: 0s; position: absolute; top: 50px; left: 10%; width: 280px; height: 160px;">
+                                <div class="hero-card-inner">
+                                    <div class="hero-card-icon">
+                                        <i class="fas fa-users fa-2x"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-2">Müşteri misiniz?</h6>
+                                    <p class="text-muted small mb-3">Randevu almak için üyelik gerekmez. Sadece profesyoneller giriş yapar.</p>
+                                    <a href="{% url 'main:home' %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-home me-1"></i> Ana Sayfa
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- Security Card -->
+                            <div class="hero-card floating" style="animation-delay: 0.5s; position: absolute; top: 240px; right: 10%; width: 260px; height: 140px;">
+                                <div class="hero-card-inner">
+                                    <div class="hero-card-icon">
+                                        <i class="fas fa-shield-check fa-2x"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-2">Güvenli Giriş</h6>
+                                    <p class="text-muted small mb-0">SSL şifrelemesi ile korunan giriş sistemi</p>
+                                    <div class="hero-card-badge">
+                                        <span class="badge bg-success">Güvenli</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Features Card -->
+                            <div class="hero-card floating" style="animation-delay: 1s; position: absolute; top: 400px; left: 50%; transform: translateX(-50%); width: 240px; height: 120px;">
+                                <div class="hero-card-inner">
+                                    <div class="hero-card-icon">
+                                        <i class="fas fa-calendar-check fa-2x"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-2">Randevu Yönetimi</h6>
+                                    <p class="text-muted small mb-0">Profesyonel kontrol paneli</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

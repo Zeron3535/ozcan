@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} Uzmanları - {{ site_settings.site_name|default:"BanaRandevu" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; min-height: 60vh;">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center h-100 py-5">
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb mb-0" style="background: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); padding: 0.75rem 1rem; backdrop-filter: blur(10px);">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'main:home' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'main:category_list' %}" class="text-white text-decoration-none">Uzmanlar</a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">{{ category.name }}</li>
+                    </ol>
+                </nav>
+                
+                <!-- Category Header -->
+                <div class="hero-content">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="category-icon-large me-4" style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.15); border-radius: 20px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);">
+                            {% if category.icon %}
+                                <i class="{{ category.icon }} fa-2x text-white"></i>
+                            {% else %}
+                                <i class="fas fa-user-md fa-2x text-white"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="hero-badge mb-2">
+                                <span class="badge bg-white bg-opacity-90 px-3 py-1 rounded-pill shadow-sm" style="color: #2d6e3e !important; font-weight: 600; font-size: 0.8rem;">
+                                    <i class="fas fa-certificate me-1"></i> Uzman Kategori
+                                </span>
+                            </div>
+                            <h1 class="display-3 fw-bold text-white mb-2 hero-title">{{ category.name }} Uzmanları</h1>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap align-items-center mb-3">
+                        <span class="badge bg-white bg-opacity-20 text-white me-3 mb-2 px-3 py-2" style="backdrop-filter: blur(10px);">
+                            <i class="fas fa-users me-1"></i> {{ professionals|length }} Uzman
+                        </span>
+                        <span class="badge bg-success bg-opacity-90 me-3 mb-2 px-3 py-2">
+                            <i class="fas fa-star me-1"></i> 4.8 Ortalama Puan
+                        </span>
+                        <span class="badge bg-primary bg-opacity-90 mb-2 px-3 py-2">
+                            <i class="fas fa-clock me-1"></i> Hızlı Randevu
+                        </span>
+                    </div>
+                    <p class="text-white mb-4 lead hero-description">{{ category.description|default:"Bu kategorideki uzmanlar size profesyonel hizmet sunmaktadır." }}</p>
+                </div>
+            </div>
+            
+            <!-- Hero Cards -->
+            <div class="col-lg-4 text-center">
+                <div class="hero-image-container" style="height: 350px;">
+                    <div class="hero-card floating" style="animation-delay: 0s; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 220px; height: 130px;">
+                        <div class="hero-card-inner">
+                            <div class="hero-card-icon">
+                                <i class="{{ category.icon|default:'fas fa-user-md' }} fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">{{ category.name }}</h6>
+                            <p class="text-muted small mb-0">Profesyonel hizmet</p>
+                            <div class="hero-card-badge">
+                                <span class="badge bg-primary">Aktif</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-card floating" style="animation-delay: 0.5s; position: absolute; top: 160px; left: 0; width: 180px; height: 110px;">
+                        <div class="hero-card-inner">
+                            <div class="hero-card-icon">
+                                <i class="fas fa-calendar-check fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">Hızlı Randevu</h6>
+                            <p class="text-muted small mb-0">Kolay rezervasyon</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-card floating" style="animation-delay: 1s; position: absolute; top: 200px; right: 0; width: 180px; height: 110px;">
+                        <div class="hero-card-inner">
+                            <div class="hero-card-icon">
+                                <i class="fas fa-shield-check fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">Güvenli</h6>
+                            <p class="text-muted small mb-0">Onaylı uzmanlar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form action="{% url 'main:search' %}" method="GET" class="d-flex">
+                    <input type="hidden" name="category" value="{{ category.slug }}">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        <input type="search" name="q" class="form-control border-start-0 ps-0" 
+                               placeholder="{{ category.name }} uzmanları içinde ara..." 
+                               aria-label="Uzman ara">
+                        <button class="btn btn-primary px-4" type="submit">
+                            <i class="fas fa-search me-2"></i> Ara
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Professionals Grid -->
+<section class="py-5">
+    <div class="container">
+        {% if professionals %}
+            <!-- Filter Options -->
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <div class="results-stats">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <strong>{{ professionals|length }} uzman bulundu</strong>
+                            <span class="stat-badge">
+                                <i class="fas fa-filter"></i> Filtreler
+                            </span>
+                            <span class="stat-badge">
+                                <i class="fas fa-star"></i> En İyi Puanlı
+                            </span>
+                            <span class="stat-badge">
+                                <i class="fas fa-clock"></i> En Erken Randevu
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary active">
+                            <i class="fas fa-th me-1"></i> Kart
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i> Liste
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professionals Cards -->
+            <div class="row g-4">
+                {% for professional in professionals %}
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="professional-card card h-100 border-0 shadow hover-lift" style="border-radius: var(--border-radius-lg);">
+                            <div class="card-body p-4">
+                                <!-- Professional Header -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="profile-image me-3" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: var(--gray-100);">
+                                        {% if professional.profile_image %}
+                                            <img src="{{ professional.profile_image.url }}" alt="{{ professional.user.get_full_name }}" class="w-100 h-100" style="object-fit: cover;">
+                                        {% else %}
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-user fa-lg text-primary"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title fw-bold mb-1">{{ professional.user.get_full_name }}</h5>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-primary me-2">{{ category.name }}</span>
+                                            {% if professional.experience_years %}
+                                                <small class="text-muted">{{ professional.experience_years }} yıl deneyim</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Professional Info -->
+                                <p class="card-text text-muted mb-3">{{ professional.bio|truncatewords:15|default:"Profesyonel hizmet sunmaktayım." }}</p>
+                                
+                                <!-- Services -->
+                                {% if professional.services.all %}
+                                    <div class="mb-3">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for service in professional.services.all|slice:":2" %}
+                                                <span class="badge bg-light text-dark border">{{ service.name }}</span>
+                                            {% endfor %}
+                                            {% if professional.services.all|length > 2 %}
+                                                <span class="badge bg-light text-muted">+{{ professional.services.all|length|add:"-2" }} daha</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Rating & Price -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-star text-warning me-1"></i>
+                                            <span class="fw-bold">4.8</span>
+                                            <small class="text-muted ms-1">(24)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        {% if professional.services.all %}
+                                            <span class="fw-bold text-success">{{ professional.services.all.0.price }} TL</span>
+                                            <small class="text-muted d-block">başlangıç</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Button -->
+                                <a href="{% url 'professionals:professional_detail' category.slug professional.id %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-calendar-plus me-2"></i> Randevu Al
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Load More -->
+            {% if professionals|length > 6 %}
+                <div class="text-center mt-5">
+                    <button class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i> Daha Fazla Uzman Yükle
+                    </button>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="empty-state text-center py-5">
+                        <div class="empty-icon mb-4">
+                            <i class="fas fa-user-slash fa-5x text-muted"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">Bu Kategoride Henüz Uzman Yok</h3>
+                        <p class="text-muted mb-4">{{ category.name }} kategorisinde henüz uzman bulunmuyor. Diğer kategorileri inceleyin.</p>
+                        <a href="{% url 'main:category_list' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-md me-2"></i> Diğer Uzmanları Görüntüle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Related Categories -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h3 class="fw-bold mb-2">İlgili Uzman Kategorileri</h3>
+                <p class="text-muted">Size uygun diğer uzman kategorilerini de keşfedin</p>
+            </div>
+        </div>
+        
+        <div class="row g-3">
+            <!-- Bu kısım dinamik olacak, şimdilik statik örnek -->
+            <div class="col-lg-3 col-md-6">
+                <div class="navigation-card text-center">
+                    <i class="fas fa-brain fa-2x text-primary mb-2"></i>
+                    <h6 class="fw-bold">Psikologlar</h6>
+                    <small class="text-muted">Mental sağlık uzmanları</small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="navigation-card text-center">
+                    <i class="fas fa-apple-alt fa-2x text-success mb-2"></i>
+                    <h6 class="fw-bold">Diyetisyenler</h6>
+                    <small class="text-muted">Beslenme uzmanları</small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="navigation-card text-center">
+                    <i class="fas fa-chalkboard-teacher fa-2x text-warning mb-2"></i>
+                    <h6 class="fw-bold">Öğretmenler</h6>
+                    <small class="text-muted">Eğitim uzmanları</small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="navigation-card text-center">
+                    <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
+                    <h6 class="fw-bold">Avukatlar</h6>
+                    <small class="text-muted">Hukuk uzmanları</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

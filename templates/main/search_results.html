@@ -1,0 +1,551 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if query %}"{{ query }}" için Arama Sonuçları{% else %}Uzman Arama{% endif %} - {{ site_settings.site_name|default:"BanaRandevu" }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; min-height: 50vh;">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-animation">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+    </div>
+    
+    <div class="container">
+        <div class="row align-items-center h-100 py-5">
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb mb-0" style="background: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); padding: 0.75rem 1rem; backdrop-filter: blur(10px);">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'main:home' %}" class="text-white text-decoration-none">
+                                <i class="fas fa-home me-1"></i> Ana Sayfa
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">
+                            {% if query %}Arama: "{{ query }}"{% else %}Uzman Arama{% endif %}
+                        </li>
+                    </ol>
+                </nav>
+                
+                <!-- Search Header -->
+                <div class="hero-content">
+                    <div class="hero-badge mb-4">
+                        <span class="badge bg-white bg-opacity-90 px-4 py-2 rounded-pill shadow-sm" style="color: #2d6e3e !important; font-weight: 600;">
+                            <i class="fas fa-search me-2 text-primary"></i>
+                            {% if query %}Arama Sonuçları{% else %}Uzman Arama{% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if query %}
+                        <h1 class="display-3 fw-bold text-white mb-3 hero-title">"{{ query }}" Arama Sonuçları</h1>
+                        <p class="lead text-white mb-0 hero-description">
+                            <span class="badge bg-success bg-opacity-90 px-3 py-2 me-2">
+                                <i class="fas fa-check-circle me-1"></i> {{ professionals|length }} uzman bulundu
+                            </span>
+                            {% if professionals|length > 0 %}
+                                Size en uygun uzmanları göster
+                            {% else %}
+                                Farklı anahtar kelimeler deneyin
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <h1 class="display-3 fw-bold text-white mb-3 hero-title">Uzman Arama</h1>
+                        <p class="lead text-white mb-0 hero-description">Size uygun uzmanı bulmak için filtreleri kullanın</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Hero Cards -->
+            <div class="col-lg-4 text-center">
+                <div class="hero-image-container" style="height: 250px;">
+                    <div class="hero-card floating" style="animation-delay: 0s; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 190px; height: 110px;">
+                        <div class="hero-card-inner">
+                            <div class="hero-card-icon">
+                                <i class="fas fa-filter fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">Akıllı Filtre</h6>
+                            <p class="text-muted small mb-0">Hızlı sonuç</p>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-card floating" style="animation-delay: 0.5s; position: absolute; top: 130px; left: 10%; width: 170px; height: 100px;">
+                        <div class="hero-card-inner">
+                            <div class="hero-card-icon">
+                                <i class="fas fa-star fa-2x"></i>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-1">En İyi Puanlı</h6>
+                            <p class="text-muted small mb-0">Kaliteli hizmet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Form Section -->
+<section class="py-4 bg-white border-bottom">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Advanced Search Form -->
+                <form action="{% url 'main:search' %}" method="GET" class="search-filters" id="searchResultsForm">
+                    <div class="row g-3">
+                        <!-- Ana Arama -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-search me-2 text-primary"></i>Genel Arama
+                                </label>
+                                <input type="search" name="q" class="form-control form-control-lg" 
+                                       value="{{ query|default:'' }}"
+                                       placeholder="İsim, uzmanlık veya alan..." 
+                                       aria-label="Uzman ara">
+                            </div>
+                        </div>
+                        
+                        <!-- Uzman Türü -->
+                        <div class="col-lg-2 col-md-6">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-user-md me-2 text-success"></i>Uzman Türü
+                                </label>
+                                <select name="expert_type" id="expertTypeSelectResults" class="form-select form-select-lg">
+                                    <option value="">Tüm Uzmanlar</option>
+                                    {% for expert_type in expert_types %}
+                                        <option value="{{ expert_type.slug }}" {% if expert_type.slug == current_expert_type %}selected{% endif %}>
+                                            {{ expert_type.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Uzmanlık Dalı -->
+                        <div class="col-lg-2 col-md-6">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-stethoscope me-2 text-warning"></i>Uzmanlık Dalı
+                                </label>
+                                <select name="specialization" id="specializationSelectResults" class="form-select form-select-lg">
+                                    <option value="">Tüm Dallar</option>
+                                    {% for specialization in specializations %}
+                                        <option value="{{ specialization.slug }}" {% if specialization.slug == current_specialization %}selected{% endif %}>
+                                            {{ specialization.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Görüşme Türü -->
+                        <div class="col-lg-2 col-md-6">
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-video me-2 text-info"></i>Görüşme
+                                </label>
+                                <select name="meeting_type" id="meetingTypeSelectResults" class="form-select form-select-lg">
+                                    <option value="">Tümü</option>
+                                    <option value="online" {% if current_meeting_type == 'online' %}selected{% endif %}>Online</option>
+                                    <option value="in_person" {% if current_meeting_type == 'in_person' %}selected{% endif %}>Yüz Yüze</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Şehir (Yüz yüze seçilince görünür) -->
+                        <div class="col-lg-2 col-md-6" id="cityFilterGroupResults" {% if current_meeting_type != 'in_person' %}style="display: none;"{% endif %}>
+                            <div class="filter-group">
+                                <label class="filter-label">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Şehir
+                                </label>
+                                <select name="city" id="citySelectResults" class="form-select form-select-lg">
+                                    <option value="">Şehir Seçin</option>
+                                    {% for city in cities %}
+                                        <option value="{{ city.slug }}" {% if city.slug == current_city %}selected{% endif %}>
+                                            {{ city.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Arama Butonu -->
+                        <div class="col-lg-1 col-md-6">
+                            <div class="filter-group d-flex align-items-end h-100">
+                                <button type="submit" class="btn btn-primary btn-lg w-100" style="height: 58px;">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-outline-secondary px-4" onclick="clearSearchFilters()">
+                                <i class="fas fa-times me-2"></i> Filtreleri Temizle
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Results Section -->
+<section class="py-5">
+    <div class="container">
+        {% if professionals %}
+            <!-- Results Stats -->
+            <div class="row mb-4">
+                <div class="col-lg-8">
+                    <div class="results-stats">
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <strong>{{ professionals|length }} uzman bulundu</strong>
+                            {% if query %}
+                                <span class="stat-badge">
+                                    <i class="fas fa-quote-left"></i> "{{ query }}"
+                                </span>
+                            {% endif %}
+                            {% if request.GET.expert_type %}
+                                <span class="stat-badge">
+                                    <i class="fas fa-user-md"></i> {{ request.GET.expert_type|title }}
+                                </span>
+                            {% endif %}
+                            {% if request.GET.meeting_type %}
+                                <span class="stat-badge">
+                                    <i class="fas fa-{% if request.GET.meeting_type == 'online' %}video{% else %}handshake{% endif %}"></i> 
+                                    {% if request.GET.meeting_type == 'online' %}Online{% else %}Yüz Yüze{% endif %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary active">
+                            <i class="fas fa-th me-1"></i> Kart
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-list me-1"></i> Liste
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professionals Grid -->
+            <div class="row g-4">
+                {% for professional in professionals %}
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="professional-card card h-100 border-0 shadow hover-lift" style="border-radius: var(--border-radius-lg);">
+                            <div class="card-body p-4">
+                                <!-- Professional Header -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="profile-image me-3" style="width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: var(--gray-100);">
+                                        {% if professional.profile_image %}
+                                            <img src="{{ professional.profile_image.url }}" alt="{{ professional.user.get_full_name }}" class="w-100 h-100" style="object-fit: cover;">
+                                        {% else %}
+                                            <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-user fa-lg text-primary"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title fw-bold mb-1">{{ professional.user.get_full_name }}</h5>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-primary me-2">{{ professional.category.name }}</span>
+                                            {% if professional.experience_years %}
+                                                <small class="text-muted">{{ professional.experience_years }} yıl</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Professional Info -->
+                                <p class="card-text text-muted mb-3">{{ professional.bio|truncatewords:15|default:"Profesyonel hizmet sunmaktayım." }}</p>
+                                
+                                <!-- Services -->
+                                {% if professional.services.all %}
+                                    <div class="mb-3">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            {% for service in professional.services.all|slice:":2" %}
+                                                <span class="badge bg-light text-dark border">{{ service.name }}</span>
+                                            {% endfor %}
+                                            {% if professional.services.all|length > 2 %}
+                                                <span class="badge bg-light text-muted">+{{ professional.services.all|length|add:"-2" }} daha</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Rating & Price -->
+                                <div class="row mb-3">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-star text-warning me-1"></i>
+                                            <span class="fw-bold">4.8</span>
+                                            <small class="text-muted ms-1">(24)</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        {% if professional.services.all %}
+                                            <span class="fw-bold text-success">{{ professional.services.all.0.price }} TL</span>
+                                            <small class="text-muted d-block">başlangıç</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Button -->
+                                <a href="{% url 'professionals:professional_detail' professional.category.slug professional.id %}" class="btn btn-primary w-100">
+                                    <i class="fas fa-calendar-plus me-2"></i> Randevu Al
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Results -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="no-results text-center py-5">
+                        <div class="no-results-icon mb-4">
+                            <i class="fas fa-search fa-5x text-muted"></i>
+                        </div>
+                        {% if query %}
+                            <h3 class="text-muted mb-3">"{{ query }}" için Sonuç Bulunamadı</h3>
+                            <p class="text-muted mb-4">Aradığınız kriterlere uygun uzman bulunamadı. Farklı anahtar kelimeler veya filtreler deneyebilirsiniz.</p>
+                        {% else %}
+                            <h3 class="text-muted mb-3">Arama Yapmak İçin Filtre Kullanın</h3>
+                            <p class="text-muted mb-4">Size uygun uzmanı bulmak için yukarıdaki filtreleri kullanın.</p>
+                        {% endif %}
+                        
+                        <!-- Suggestions -->
+                        <div class="suggestions-card mt-5 p-4">
+                            <h5 class="fw-bold mb-3">Önerilen Aramalar:</h5>
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                {% for expert_type in expert_types|slice:":4" %}
+                                    <a href="{% url 'main:search' %}?expert_type={{ expert_type.slug }}" class="badge-filter">
+                                        <i class="{{ expert_type.icon|default:'fas fa-user' }} me-1"></i> {{ expert_type.name }}
+                                    </a>
+                                {% endfor %}
+                                <a href="{% url 'main:search' %}?meeting_type=online" class="badge-filter">
+                                    <i class="fas fa-video me-1"></i> Online Görüşme
+                                </a>
+                                <a href="{% url 'main:search' %}?meeting_type=in_person" class="badge-filter">
+                                    <i class="fas fa-handshake me-1"></i> Yüz Yüze Görüşme
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <div class="cta-section-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 24px; padding: 3rem 2rem; color: white; position: relative; overflow: hidden; box-shadow: 0 25px 50px rgba(102, 126, 234, 0.3);">
+                    <!-- Background Pattern -->
+                    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('data:image/svg+xml;charset=utf-8,<svg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;><g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;><g fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.05&quot;><path d=&quot;M30 0c16.568 0 30 13.432 30 30s-13.432 30-30 30S0 46.568 0 30 13.432 0 30 0z&quot;/></g></svg>'); opacity: 0.3;"></div>
+                    
+                    <div style="position: relative; z-index: 2;">
+                        <h3 class="text-white fw-bold mb-3" style="font-size: 2rem; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);">Aradığınız Uzmanı Bulamadınız mı?</h3>
+                        <p class="text-white mb-4" style="opacity: 0.95; font-size: 1.1rem; font-weight: 500; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);">Bize ulaşın, size en uygun uzmanı bulalım veya tüm uzman kategorilerini inceleyin.</p>
+                        <a href="{% url 'main:category_list' %}" class="btn btn-light btn-lg me-3" style="background: white; color: #667eea; border: none; padding: 1rem 2rem; border-radius: 50px; font-weight: 600; box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 35px rgba(255, 255, 255, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(255, 255, 255, 0.3)'">
+                            <i class="fas fa-user-md me-2"></i> Tüm Uzmanlar
+                        </a>
+                        <a href="#iletisim" class="btn btn-outline-light btn-lg" style="border: 2px solid white; color: white; padding: 1rem 2rem; border-radius: 50px; font-weight: 600; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255, 255, 255, 0.2)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.transform='translateY(0)'">
+                            <i class="fas fa-phone me-2"></i> Bize Ulaşın
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search results specific functions
+    function clearSearchFilters() {
+        // Clear all form fields
+        document.querySelector('#searchResultsForm input[name="q"]').value = '';
+        document.querySelector('#expertTypeSelectResults').selectedIndex = 0;
+        document.querySelector('#specializationSelectResults').selectedIndex = 0;
+        document.querySelector('#meetingTypeSelectResults').selectedIndex = 0;
+        document.querySelector('#citySelectResults').selectedIndex = 0;
+        
+        // Hide city field
+        document.getElementById('cityFilterGroupResults').style.display = 'none';
+        
+        // Reset specializations
+        loadSpecializationsForExpertTypeResults('');
+        
+        // Form animation
+        const form = document.querySelector('#searchResultsForm');
+        form.style.transform = 'scale(0.98)';
+        setTimeout(() => {
+            form.style.transform = 'scale(1)';
+        }, 150);
+    }
+    
+    // Load specializations for expert type (search results version)
+    function loadSpecializationsForExpertTypeResults(expertTypeSlug) {
+        const specializationSelect = document.getElementById('specializationSelectResults');
+        const currentValue = specializationSelect.value;
+        
+        // Loading state
+        specializationSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        specializationSelect.disabled = true;
+        
+        // AJAX request
+        const url = "{% url 'main:api_specializations' %}" + (expertTypeSlug ? `?expert_type=${expertTypeSlug}` : '');
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                // Clear options
+                specializationSelect.innerHTML = '<option value="">Tüm Dallar</option>';
+                
+                // Add new options
+                data.specializations.forEach(spec => {
+                    const option = document.createElement('option');
+                    option.value = spec.slug;
+                    option.textContent = spec.name;
+                    if (spec.slug === currentValue) {
+                        option.selected = true;
+                    }
+                    specializationSelect.appendChild(option);
+                });
+                
+                specializationSelect.disabled = false;
+                
+                // Animate the select
+                specializationSelect.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    specializationSelect.style.transform = 'scale(1)';
+                }, 200);
+            })
+            .catch(error => {
+                console.error('Error loading specializations:', error);
+                specializationSelect.innerHTML = '<option value="">Hata oluştu</option>';
+                specializationSelect.disabled = false;
+            });
+    }
+    
+    // Toggle city field for search results
+    function toggleCityFieldResults(meetingType) {
+        const cityGroup = document.getElementById('cityFilterGroupResults');
+        const citySelect = document.getElementById('citySelectResults');
+        
+        if (meetingType === 'in_person') {
+            // Show city field
+            cityGroup.style.display = 'block';
+            cityGroup.style.opacity = '0';
+            cityGroup.style.transform = 'translateY(20px)';
+            
+            // Animated entrance
+            setTimeout(() => {
+                cityGroup.style.transition = 'all 0.3s ease';
+                cityGroup.style.opacity = '1';
+                cityGroup.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // Make city selection required
+            citySelect.required = true;
+        } else {
+            // Hide city field
+            cityGroup.style.transition = 'all 0.3s ease';
+            cityGroup.style.opacity = '0';
+            cityGroup.style.transform = 'translateY(-20px)';
+            
+            setTimeout(() => {
+                cityGroup.style.display = 'none';
+                citySelect.value = '';
+                citySelect.required = false;
+            }, 300);
+        }
+    }
+    
+    // Form validation for search results
+    function validateSearchForm() {
+        const meetingType = document.getElementById('meetingTypeSelectResults').value;
+        const city = document.getElementById('citySelectResults').value;
+        
+        if (meetingType === 'in_person' && !city) {
+            alert('Yüz yüze görüşme için lütfen şehir seçin.');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Initialize search results page
+    document.addEventListener('DOMContentLoaded', function() {
+        // Dynamic filtering event listeners
+        const expertTypeSelect = document.getElementById('expertTypeSelectResults');
+        const meetingTypeSelect = document.getElementById('meetingTypeSelectResults');
+        const searchForm = document.getElementById('searchResultsForm');
+        
+        // Expert type change - load related specializations
+        if (expertTypeSelect) {
+            expertTypeSelect.addEventListener('change', function() {
+                loadSpecializationsForExpertTypeResults(this.value);
+            });
+            
+            // Load specializations for current expert type on page load
+            const currentExpertType = expertTypeSelect.value;
+            if (currentExpertType) {
+                loadSpecializationsForExpertTypeResults(currentExpertType);
+            }
+        }
+        
+        // Meeting type change - show/hide city field
+        if (meetingTypeSelect) {
+            meetingTypeSelect.addEventListener('change', function() {
+                toggleCityFieldResults(this.value);
+            });
+        }
+        
+        // Form validation on submit
+        if (searchForm) {
+            searchForm.addEventListener('submit', function(e) {
+                if (!validateSearchForm()) {
+                    e.preventDefault();
+                }
+            });
+        }
+        
+        // Form controls hover effects
+        const formControls = document.querySelectorAll('#searchResultsForm .form-control, #searchResultsForm .form-select');
+        formControls.forEach(control => {
+            control.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            control.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Professional cards hover effects
+        const professionalCards = document.querySelectorAll('.professional-card');
+        professionalCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-5px) scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %} 

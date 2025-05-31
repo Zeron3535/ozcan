@@ -1,0 +1,150 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% if site_title %}{{ site_title }}{% else %}{% translate "BanaRandevu Yönetim" %}{% endif %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'custom_admin:index' %}">
+        {% if site_header %}{{ site_header }}{% else %}{% translate "BanaRandevu Yönetim Paneli" %}{% endif %}
+    </a>
+</h1>
+{% if user.is_authenticated and user.is_staff %}
+    <ul id="user-tools" class="header-user-menu">
+        <li>
+            <a href="{% url 'custom_admin:index' %}">
+                {% translate 'Ana Sayfa' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'custom_admin:accounts_user_changelist' %}">
+                {% translate 'Kullanıcılar' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'custom_admin:accounts_user_add' %}">
+                {% translate 'Yeni Kullanıcı' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'custom_admin:password_change' %}">
+                {% translate 'Şifre Değiştir' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'custom_admin:logout' %}">
+                {% translate 'Çıkış' %}
+            </a>
+        </li>
+    </ul>
+{% endif %}
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    :root {
+        --primary: #007bff;
+        --secondary: #6c757d;
+        --accent: #28a745;
+        --primary-fg: #fff;
+        --body-bg: #f8f9fa;
+        --body-fg: #333;
+        --header-bg: #343a40;
+        --header-fg: #fff;
+    }
+    
+    #header {
+        background: var(--header-bg);
+        color: var(--header-fg);
+        padding: 15px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    #branding h1 {
+        margin: 0;
+        font-weight: 500;
+        font-size: 20px;
+    }
+    
+    #branding h1 a {
+        color: var(--header-fg);
+        text-decoration: none;
+    }
+    
+    .header-user-menu {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .header-user-menu li {
+        margin-left: 15px;
+    }
+    
+    .header-user-menu a {
+        color: var(--header-fg);
+        text-decoration: none;
+        font-size: 14px;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+    
+    .header-user-menu a:hover {
+        opacity: 1;
+    }
+    
+    #content {
+        padding: 20px 40px;
+    }
+    
+    .module h2, .module caption {
+        background: var(--primary);
+        color: var(--primary-fg);
+    }
+    
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: var(--primary);
+        color: var(--primary-fg);
+        border-radius: 4px;
+    }
+    
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, a.button:hover {
+        background: #0069d9;
+    }
+    
+    .button.default, input[type=submit].default, .submit-row input.default {
+        background: var(--accent);
+    }
+    
+    .button.default:hover, input[type=submit].default:hover, .submit-row input.default:hover {
+        background: #218838;
+    }
+    
+    @media (max-width: 767px) {
+        #header {
+            padding: 15px 20px;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .header-user-menu {
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .header-user-menu li {
+            margin: 5px 10px 5px 0;
+        }
+        
+        #content {
+            padding: 15px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block nav_global %}{% endblock %}
